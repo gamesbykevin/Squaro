@@ -109,9 +109,11 @@ public class CustomMenu extends Menu
             //if on the options screen check if sound/fullScreen enabled
             if (super.hasCurrent(LayerKey.Options))
             {
+                //if option exists
                 if (super.hasOption(LayerKey.Options, OptionKey.Sound))
                     tmpSound = Toggle.values()[getOptionSelectionIndex(LayerKey.Options, OptionKey.Sound)];
                 
+                //if option exists
                 if (super.hasOption(LayerKey.Options, OptionKey.FullScreen))
                     tmpFullWindow = Toggle.values()[getOptionSelectionIndex(LayerKey.Options, OptionKey.FullScreen)];
             }
@@ -119,9 +121,11 @@ public class CustomMenu extends Menu
             //if on the in-game options screen check if sound/fullScreen enabled
             if (super.hasCurrent(LayerKey.OptionsInGame))
             {
+                //if option exists
                 if (super.hasOption(LayerKey.OptionsInGame, OptionKey.Sound))
                     tmpSound = Toggle.values()[getOptionSelectionIndex(LayerKey.OptionsInGame, OptionKey.Sound)];
                 
+                //if option exists
                 if (super.hasOption(LayerKey.OptionsInGame, OptionKey.FullScreen))
                     tmpFullWindow = Toggle.values()[getOptionSelectionIndex(LayerKey.OptionsInGame, OptionKey.FullScreen)];
             }
