@@ -44,7 +44,7 @@ public class CustomMenu extends Menu
         Sound, FullScreen, StartGame, Options, Controls, Instructions, Credits, GoBack, Resume, 
         NewGame, ExitGame, NewGameConfim, NewGameDeny, ExitGameConfirm, ExitGameDeny, 
         Level, Speed, Mode, OpponentTotal, Music,
-        Difficulty
+        Difficulty, Dimensions
     } 
     
     //unique key to indentify each Layer

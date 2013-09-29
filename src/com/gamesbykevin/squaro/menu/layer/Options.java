@@ -30,6 +30,13 @@ public class Options extends Layer implements LayerRules
     {
         //setup options here
         Option tmp;
+            
+        tmp = new Option("Dimensions: ");
+        for (int size=3; size <= 9; size++)
+        {
+            tmp.add(Integer.toString(size), engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
+        }
+        super.add(OptionKey.Dimensions, tmp);
         
         tmp = new Option("Difficulty: ");
         for (Difficulty difficulty : Difficulty.values())

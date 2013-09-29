@@ -1,16 +1,16 @@
 package com.gamesbykevin.squaro.board;
 
+import com.gamesbykevin.framework.base.Cell;
 import com.gamesbykevin.framework.base.Sprite;
 
 import com.gamesbykevin.squaro.engine.Engine;
-import java.awt.Color;
+import com.gamesbykevin.squaro.resource.Resources.GameImage;
 
 import java.awt.image.BufferedImage;
 import java.awt.Graphics;
+import java.awt.Image;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.awt.Dimension;
-import java.awt.Font;
 import java.util.List;
 import java.util.Random;
 
@@ -34,15 +34,15 @@ public final class Board extends Sprite
     
     //list of the pegs
     private List<Peg> pegs;
-    
-    //seed used for random number generation
-    private final long seed = System.nanoTime();
-    
-    //our random numbner generator
-    private Random random;
-    
+        
     //the peg size will be a % of the cell size
     private static final float PEG_SIZE_RATIO = .33F;
+    
+    //the board width and height
+    private static final int DIMENSION = 300;
+    
+    //the number of different selections for a single peg
+    private final int maxFillCount;
     
     public enum Difficulty
     {
@@ -68,29 +68,26 @@ public final class Board extends Sprite
      * @param rows The row board size. NOTE: This is not the number of pegs
      * @param container The container the board will be drawn within
      */
-    public Board(final int size, final Dimension container, final int difficultyIndex)
+    public Board(final int size, final int difficultyIndex, final Random random)
     {
         //the number of column/row cells in this Board
         this.size = size;
         
         //width and height of a peg
-        this.pegSize = (int)((container.width / size) * PEG_SIZE_RATIO);
+        this.pegSize = (int)((DIMENSION / size) * PEG_SIZE_RATIO);
         
         //width and height of a cell
-        this.cellDimension = ((container.width - pegSize) / size);
+        this.cellDimension = ((DIMENSION - pegSize) / size);
         
         //now that we have the cell and peg sizes we can calculate the width/height of the entire board
-        super.setWidth(container.width + pegSize);
-        super.setHeight(container.height + pegSize);
+        super.setWidth(DIMENSION + pegSize);
+        super.setHeight(DIMENSION + pegSize);
         
         //create a new buffered image to write to
         this.bufferedImage = new BufferedImage((int)getWidth(), (int)getHeight(), BufferedImage.TYPE_INT_ARGB);
         
         //create a list of pegs
         this.pegs = new ArrayList<>();
-        
-        //create a random number generator
-        this.random = new Random(seed);
         
         //get the fill rate based on the difficulty
         final float fillRate = Difficulty.values()[difficultyIndex].getFillRate();
@@ -103,6 +100,18 @@ public final class Board extends Sprite
             //add current fill rate to list
             solutions.add(current);
         }
+        
+        int count = 0;
+        float start = 0;
+        
+        //loop until we reach 100% full so we know the max count
+        while (start < 1)
+        {
+            start += fillRate;
+            count++;
+        }
+        
+        this.maxFillCount = count;
         
         //there will be an extra peg on the end
         for (int row = 0; row <= size; row++)
@@ -134,36 +143,39 @@ public final class Board extends Sprite
         }
     }
     
-    public void update(final Engine engine)
+    /**
+     * Get the count at which the fill for a specific peg is 100%
+     * @return int
+     */
+    public int getMaxFillCount()
     {
-        final boolean hasMouseClick = (engine.getMouse().isMouseReleased());
-        
-        //if the mouse was clicked check for collision
-        if (hasMouseClick)
-        {
-            //get the mouse location
-            Point location = new Point(engine.getMouse().getLocation());
-            
-            //offset the location because the board could be drawn anywhere
-            location.x -= getX();
-            location.y -= getY();
-            
-            for (Peg peg : pegs)
-            {
-                //if the peg we clicked is contained inside a Rectangle
-                if (peg.getRectangle().contains(location))
-                {
-                    //increase the fill
-                    peg.changeFill();
-                    
-                    //at this point there is no possible way to check another peg so exit loop
-                    break;
-                }
-            }
-        }
-        
+        return this.maxFillCount;
+    }
+    
+    /**
+     * Get the Board dimensions. <br><br>
+     * Each board will have the same number of columns and rows.
+     * @return int The dimension(s)
+     */
+    public int getSize()
+    {
+        return this.size;
+    }
+    
+    public void update(final Engine engine) throws Exception
+    {
         //render our board to a single image
-        renderImage();
+        renderImage(engine);
+    }
+    
+    public List<Peg> getPegs()
+    {
+        return this.pegs;
+    }
+    
+    public Peg getPeg(final Cell cell)
+    {
+        return getPeg(cell.getCol(), cell.getRow());
     }
     
     /**
@@ -172,7 +184,7 @@ public final class Board extends Sprite
      * @param row Row peg is in
      * @return Peg, if no peg exists at the specified location null is returned
      */
-    private Peg getPeg(final int col, final int row)
+    public Peg getPeg(final int col, final int row)
     {
         for (Peg peg : pegs)
         {
@@ -183,62 +195,34 @@ public final class Board extends Sprite
         return null;
     }
     
-    private void renderImage()
+    private void renderImage(final Engine engine) throws Exception
     {
         //create graphics object
         final Graphics graphics = bufferedImage.createGraphics();
         
-        graphics.setFont(graphics.getFont().deriveFont(Font.BOLD, 14));
-        
-        //draw horizontal and vertical lines on the board
-        for (int count=0; count <= size; count++)
-        {
-            //get the two vertical endpoints
-            Point center1 = getPeg(count, 0).getCenter();
-            Point center2 = getPeg(count, size).getCenter();
-
-            //draw the line
-            graphics.drawLine(center1.x, center1.y, center2.x, center2.y);
-
-            //get the two horizontal endpoints
-            center1 = getPeg(0, count).getCenter();
-            center2 = getPeg(size, count).getCenter();
-
-            //draw the line
-            graphics.drawLine(center1.x, center1.y, center2.x, center2.y);
-        }
+        //start Point
+        Point start = getPeg(0, 0).getCenter();
         
         //check all the board cells to display the count
         for (int row=0; row < size; row++)
         {
             for (int col=0; col < size; col++)
             {
-                //get the temporary peg so we can tell where to draw the count
-                Peg tmp = getPeg(col, row);
-                
+                //the real solution
                 final int countSolution = getSolutionCount(col, row);
+                
+                //the current value
                 final int countSelection = getSelectionCount(col, row);
                 
-                //get the pixel width for the count number
-                final int countWidth = graphics.getFontMetrics().stringWidth(countSolution + "");
-                
-                //get the pixel height for the count number
-                final int countHeight = graphics.getFontMetrics().getHeight();
-                
-                //calculate the render position of the count
-                final int x = (int)(tmp.getX() + (cellDimension / 2) + (countWidth));
-                final int y = (int)(tmp.getY() + (cellDimension / 2) + (countHeight));
-                
-                //if the current count does not match the solution display red to the user
-                if (countSolution != countSelection)
-                    graphics.setColor(Color.RED);
-                
-                //if the current count matches the solution display green to the user
-                if (countSolution == countSelection)
-                    graphics.setColor(Color.GREEN);
-                
-                //display the count
-                graphics.drawString(countSolution + "", x, y);
+                //the appropriate Image to draw
+                final Image img = engine.getResources().getGameImage(getNumberKey(countSelection, countSolution));
+
+                //location
+                final int x = start.x + (col * cellDimension);
+                final int y = start.y + (row * cellDimension);
+
+                //draw the image
+                graphics.drawImage(img, x, y, cellDimension, cellDimension, null);
             }
         }
         
@@ -249,42 +233,231 @@ public final class Board extends Sprite
         }
     }
     
-    private int getSelectionCount(final int col, final int row)
+    public boolean hasSolved()
+    {
+        for (int col=0; col < getSize(); col++)
+        {
+            for (int row=0; row < getSize(); row++)
+            {
+                if (!isSolved(col, row))
+                    return false;
+            }
+        }
+        
+        return true;
+    }
+
+    public boolean isSolved(final Cell cell)
+    {
+        return isSolved(cell.getCol(), cell.getRow());
+    }
+    
+    /**
+     * This method just checks to make sure the selection count equals the solution count for the specific Cell.
+     * @param col
+     * @param row
+     * @return True if the solution count matches the selection count
+     */
+    public boolean isSolved(final int col, final int row)
+    {
+        //the real solution
+        final int countSolution = getSolutionCount(col, row);
+
+        //the current value
+        final int countSelection = getSelectionCount(col, row);
+        
+        return (countSolution == countSelection);
+    }
+    
+    /**
+     * Get the appropriate Image to display
+     * @param number The current number
+     * @param solution The actual solution
+     * @return GameImage key, the key that represents the Image
+     * @throws Exception 
+     */
+    private GameImage getNumberKey(final int number, final int solution) throws Exception
+    {
+        switch(solution)
+        {
+            case 0:
+                if (number == solution)
+                    return GameImage.NS0;
+                else
+                    return GameImage.NE0;
+
+            case 1:
+                if (number == solution)
+                    return GameImage.NS1;
+                else
+                    return GameImage.NE1;
+
+            case 2:
+                if (number == solution)
+                    return GameImage.NS2;
+                else
+                    return GameImage.NE2;
+
+            case 3:
+                if (number == solution)
+                    return GameImage.NS3;
+                else
+                    return GameImage.NE3;
+
+            case 4:
+                if (number == solution)
+                    return GameImage.NS4;
+                else
+                    return GameImage.NE4;
+
+            case 5:
+                if (number == solution)
+                    return GameImage.NS5;
+                else
+                    return GameImage.NE5;
+
+            case 6:
+                if (number == solution)
+                    return GameImage.NS6;
+                else
+                    return GameImage.NE6;
+
+            case 7:
+                if (number == solution)
+                    return GameImage.NS7;
+                else
+                    return GameImage.NE7;
+
+            case 8:
+                if (number == solution)
+                    return GameImage.NS8;
+                else
+                    return GameImage.NE8;
+
+            case 9:
+                if (number == solution)
+                    return GameImage.NS9;
+                else
+                    return GameImage.NE9;
+
+            case 10:
+                if (number == solution)
+                    return GameImage.NS10;
+                else
+                    return GameImage.NE10;
+
+            case 11:
+                if (number == solution)
+                    return GameImage.NS11;
+                else
+                    return GameImage.NE11;
+
+            case 12:
+                if (number == solution)
+                    return GameImage.NS12;
+                else
+                    return GameImage.NE12;
+
+            case 13:
+                if (number == solution)
+                    return GameImage.NS13;
+                else
+                    return GameImage.NE13;
+
+            case 14:
+                if (number == solution)
+                    return GameImage.NS14;
+                else
+                    return GameImage.NE14;
+
+            case 15:
+                if (number == solution)
+                    return GameImage.NS15;
+                else
+                    return GameImage.NE15;
+
+            case 16:
+                if (number == solution)
+                    return GameImage.NS16;
+                else
+                    return GameImage.NE16;
+        }
+        
+        throw new Exception("Number is not setup");
+    }
+    
+    /**
+     * Get the current count for the given column, row
+     * @param col Column
+     * @param row Row
+     * @return int, The current count
+     */
+    public int getSelectionCount(final int col, final int row)
     {
         //get the selection count for all neighbors
         int count = 0;
         
-        //count current position
-        count += getPeg(col, row).getCurrentCount();
+        if (getPeg(col, row) != null)
+        {
+            //count current position
+            count += getPeg(col, row).getCurrentCount();
+        }
         
-        //count position to the south
-        count += getPeg(col, row + 1).getCurrentCount();
+        if (getPeg(col, row + 1) != null)
+        {
+            //count position to the south
+            count += getPeg(col, row + 1).getCurrentCount();
+        }
         
-        //count position to the south east
-        count += getPeg(col + 1, row + 1).getCurrentCount();
+        if (getPeg(col + 1, row + 1) != null)
+        {
+            //count position to the south east
+            count += getPeg(col + 1, row + 1).getCurrentCount();
+        }
         
-        //count position to the east
-        count += getPeg(col + 1, row).getCurrentCount();
+        if (getPeg(col + 1, row) != null)
+        {
+            //count position to the east
+            count += getPeg(col + 1, row).getCurrentCount();
+        }
         
         return count;
     }
     
-    private int getSolutionCount(final int col, final int row)
+    /**
+     * Get the solution count for the given column, row
+     * @param col Column
+     * @param row Row
+     * @return int, The solution
+     */
+    public int getSolutionCount(final int col, final int row)
     {
         //get the solution count for all neighbors
         int count = 0;
         
-        //count current position
-        count += getPeg(col, row).getSolutionCount();
+        if (getPeg(col, row) != null)
+        {
+            //count current position
+            count += getPeg(col, row).getSolutionCount();
+        }
         
-        //count position to the south
-        count += getPeg(col, row + 1).getSolutionCount();
+        if (getPeg(col, row + 1) != null)
+        {
+            //count position to the south
+            count += getPeg(col, row + 1).getSolutionCount();
+        }
         
-        //count position to the south east
-        count += getPeg(col + 1, row + 1).getSolutionCount();
+        if (getPeg(col + 1, row + 1) != null)
+        {
+            //count position to the south east
+            count += getPeg(col + 1, row + 1).getSolutionCount();
+        }
         
-        //count position to the east
-        count += getPeg(col + 1, row).getSolutionCount();
+        if (getPeg(col + 1, row) != null)
+        {
+            //count position to the east
+            count += getPeg(col + 1, row).getSolutionCount();
+        }
         
         return count;
     }

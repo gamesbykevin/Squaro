@@ -2,6 +2,8 @@ package com.gamesbykevin.squaro.manager;
 
 import com.gamesbykevin.framework.resources.Disposable;
 import com.gamesbykevin.framework.display.WindowHelper;
+import com.gamesbykevin.framework.util.Timer;
+import com.gamesbykevin.framework.util.TimerCollection;
 
 import com.gamesbykevin.squaro.board.Board;
 
@@ -9,7 +11,9 @@ import com.gamesbykevin.squaro.engine.Engine;
 import com.gamesbykevin.squaro.menu.CustomMenu.LayerKey;
 import com.gamesbykevin.squaro.menu.CustomMenu.OptionKey;
 import com.gamesbykevin.squaro.resource.Resources.GameImage;
-import com.gamesbykevin.framework.util.TimerCollection;
+
+import com.gamesbykevin.squaro.player.*;
+
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -24,8 +28,13 @@ import java.util.List;
  */
 public final class Manager implements Disposable
 {
-    private Board board;
+    private Human human;
+    private Agent agent;
     
+    //the size of the board
+    private int dimension = 5;
+    
+    private final int difficulty;
     /**
      * Constructor for Manager, this is the point where we load any menu option configurations
      * @param engine
@@ -36,13 +45,28 @@ public final class Manager implements Disposable
         //this.musicSelection = engine.getMenu().getOptionSelectionIndex(LayerKey.Options, OptionKey.Music);
         //final Image image = engine.getResources().getGameImage(GameImage.Spritesheet);
         
-        final int difficultyIndex = engine.getMenu().getOptionSelectionIndex(LayerKey.Options, OptionKey.Difficulty);
+        this.dimension = engine.getMenu().getOptionSelectionIndex(LayerKey.Options, OptionKey.Dimensions) + 3;
+        this.difficulty = engine.getMenu().getOptionSelectionIndex(LayerKey.Options, OptionKey.Difficulty);
         
-        //create a new board with the specified size and dimension
-        board = new Board(5, new Dimension(400, 400), difficultyIndex);
+        //human = new Human();
         
-        //set the location of the board
-        board.setLocation(0, 0);
+        //setupPlayer(human, new Rectangle(12, 0, 312, 400));
+        
+        agent = new Agent();
+        
+        setupPlayer(agent, new Rectangle(337, 0, 312, 400));
+    }
+    
+    private void setupPlayer(final Player player, final Rectangle area)
+    {
+        //create a board with the specific dimension and difficulty
+        player.createBoard(dimension, difficulty);
+        
+        //set the location of the player
+        player.setLocation(area.x, area.y);
+        
+        //set the size of the player window
+        player.setDimensions(area.width, area.height);
     }
     
     /**
@@ -62,7 +86,11 @@ public final class Manager implements Disposable
      */
     public void update(final Engine engine) throws Exception
     {
-        board.update(engine);
+        if (human != null)
+            human.update(engine);
+        
+        if (agent != null)
+            agent.update(engine);
     }
     
     /**
@@ -71,6 +99,10 @@ public final class Manager implements Disposable
      */
     public void render(final Graphics graphics)
     {
-        board.render(graphics);
+        if (human != null)
+            human.render(graphics);
+        
+        if (agent != null)
+            agent.render(graphics);
     }
 }

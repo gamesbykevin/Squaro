@@ -21,8 +21,8 @@ public class Peg extends Sprite
     //the count we are currently at
     private int currentCount;
     
-    //the correct count to solve
-    private int solutionCount;
+    //the correct count to solve this peg
+    private final int solutionCount;
     
     public Peg(final float fillRate, final float solution)
     {
@@ -49,6 +49,24 @@ public class Peg extends Sprite
         this.solutionCount = count;
     }
     
+    public void setFill(final float fill)
+    {
+        //continue to change the fill until the correct is found
+        while (this.fill != fill)
+        {
+            changeFill();
+        }
+    }
+    
+    public void setFill(final int count)
+    {
+        //continue to change the count until the correct is found
+        while (this.currentCount != count)
+        {
+            changeFill();
+        }
+    }
+    
     /**
      * Move to the next index in the Status collection
      */
@@ -61,10 +79,10 @@ public class Peg extends Sprite
         this.currentCount++;
         
         //if we reached the end, start back at begining
-        if (fill > 1)
+        if (this.fill > 1)
         {
-            fill = 0;
-            currentCount = 0;
+            this.fill = 0;
+            this.currentCount = 0;
         }
     }
     

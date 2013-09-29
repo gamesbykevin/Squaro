@@ -29,7 +29,11 @@ public class Resources implements IResources
     
     public enum GameImage
     {
-        Spritesheet
+        //number success
+        NS0, NS1, NS2, NS3, NS4, NS5, NS6, NS7, NS8, NS9, NS10, NS11, NS12, NS13, NS14, NS15, NS16, 
+        
+        //number error
+        NE0, NE1, NE2, NE3, NE4, NE5, NE6, NE7, NE8, NE9, NE10, NE11, NE12, NE13, NE14, NE15, NE16,  
     }
     
     public enum MenuAudio
@@ -57,7 +61,7 @@ public class Resources implements IResources
         everyResource = new LinkedHashMap<>();
         
         //load single sprite sheet
-        add(Type.GameImage, (Object[])GameImage.values(), RESOURCE_DIR + "images/game/{0}.png", "Loading Game Image Resources", Manager.Type.Image);
+        add(Type.GameImage, (Object[])GameImage.values(), RESOURCE_DIR + "images/game/numbers/{0}.png", "Loading Game Image Resources", Manager.Type.Image);
         
         //load all menu images
         add(Type.MenuImage, (Object[])MenuImage.values(), RESOURCE_DIR + "images/menu/{0}.gif", "Loading Menu Image Resources", Manager.Type.Image);
