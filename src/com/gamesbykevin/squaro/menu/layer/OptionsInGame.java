@@ -35,7 +35,7 @@ public class OptionsInGame extends Layer implements LayerRules
         {
             tmp.add(toggle.toString(), engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
         }
-        super.add(CustomMenu.OptionKey.Sound, tmp);
+        //super.add(CustomMenu.OptionKey.Sound, tmp);
         
         tmp = new Option("FullScreen: ");
         for (Toggle toggle : Toggle.values())

@@ -1,20 +1,6 @@
 package com.gamesbykevin.squaro.menu;
 
-import com.gamesbykevin.squaro.menu.layer.ExitGameConfirm;
-import com.gamesbykevin.squaro.menu.layer.Instructions3;
-import com.gamesbykevin.squaro.menu.layer.Options;
-import com.gamesbykevin.squaro.menu.layer.Instructions2;
-import com.gamesbykevin.squaro.menu.layer.StartGame;
-import com.gamesbykevin.squaro.menu.layer.NewGameConfirmed;
-import com.gamesbykevin.squaro.menu.layer.OptionsInGame;
-import com.gamesbykevin.squaro.menu.layer.MainTitle;
-import com.gamesbykevin.squaro.menu.layer.NewGameConfirm;
-import com.gamesbykevin.squaro.menu.layer.NoFocus;
-import com.gamesbykevin.squaro.menu.layer.Instructions4;
-import com.gamesbykevin.squaro.menu.layer.Credits;
-import com.gamesbykevin.squaro.menu.layer.Instructions1;
-import com.gamesbykevin.squaro.menu.layer.Controls1;
-import com.gamesbykevin.squaro.menu.layer.Title;
+import com.gamesbykevin.squaro.menu.layer.*;
 import com.gamesbykevin.squaro.engine.Engine;
 
 import com.gamesbykevin.framework.display.FullScreen;
@@ -38,13 +24,13 @@ public class CustomMenu extends Menu
     //previous Layer key used so when container loses focus we remember where we were at
     private Object previousLayerKey;
     
-    //unique object to identify each Option
+    //unique key to identify each Option
     public enum OptionKey 
     { 
         Sound, FullScreen, StartGame, Options, Controls, Instructions, Credits, GoBack, Resume, 
         NewGame, ExitGame, NewGameConfim, NewGameDeny, ExitGameConfirm, ExitGameDeny, 
-        Level, Speed, Mode, OpponentTotal, Music,
-        Difficulty, Dimensions
+        
+        BoardDifficulty, CpuDifficulty, Dimensions, Mode
     } 
     
     //unique key to indentify each Layer
@@ -53,7 +39,7 @@ public class CustomMenu extends Menu
         Title, Credits, MainTitle, Options, OptionsInGame, 
         NewGameConfirm, ExitGameConfirm, NoFocus, StartGame, NewGameConfirmed, 
         Controls1,  
-        Instructions1, Instructions2, Instructions3, Instructions4
+        Instructions1, 
     }
     
     /**
@@ -85,9 +71,6 @@ public class CustomMenu extends Menu
         super.add(LayerKey.Options,         new Options(engine));
         super.add(LayerKey.Controls1,       new Controls1(engine));
         super.add(LayerKey.Instructions1,   new Instructions1(engine));
-        super.add(LayerKey.Instructions2,   new Instructions2(engine));
-        super.add(LayerKey.Instructions3,   new Instructions3(engine));
-        super.add(LayerKey.Instructions4,   new Instructions4(engine));
         super.add(LayerKey.OptionsInGame,   new OptionsInGame(engine));
         super.add(LayerKey.NewGameConfirm,  new NewGameConfirm(engine));
         super.add(LayerKey.ExitGameConfirm, new ExitGameConfirm(engine));
@@ -126,15 +109,21 @@ public class CustomMenu extends Menu
             //if on the options screen check if sound/fullScreen enabled
             if (super.hasCurrent(LayerKey.Options))
             {
-                tmpSound      = Toggle.values()[getOptionSelectionIndex(LayerKey.Options, OptionKey.Sound)];
-                tmpFullWindow = Toggle.values()[getOptionSelectionIndex(LayerKey.Options, OptionKey.FullScreen)];
+                if (super.hasOption(LayerKey.Options, OptionKey.Sound))
+                    tmpSound = Toggle.values()[getOptionSelectionIndex(LayerKey.Options, OptionKey.Sound)];
+                
+                if (super.hasOption(LayerKey.Options, OptionKey.FullScreen))
+                    tmpFullWindow = Toggle.values()[getOptionSelectionIndex(LayerKey.Options, OptionKey.FullScreen)];
             }
             
             //if on the in-game options screen check if sound/fullScreen enabled
             if (super.hasCurrent(LayerKey.OptionsInGame))
             {
-                tmpSound      = Toggle.values()[getOptionSelectionIndex(LayerKey.OptionsInGame, OptionKey.Sound)];
-                tmpFullWindow = Toggle.values()[getOptionSelectionIndex(LayerKey.OptionsInGame, OptionKey.FullScreen)];
+                if (super.hasOption(LayerKey.OptionsInGame, OptionKey.Sound))
+                    tmpSound = Toggle.values()[getOptionSelectionIndex(LayerKey.OptionsInGame, OptionKey.Sound)];
+                
+                if (super.hasOption(LayerKey.OptionsInGame, OptionKey.FullScreen))
+                    tmpFullWindow = Toggle.values()[getOptionSelectionIndex(LayerKey.OptionsInGame, OptionKey.FullScreen)];
             }
             
             //if starting a new game change layer, stop all sound

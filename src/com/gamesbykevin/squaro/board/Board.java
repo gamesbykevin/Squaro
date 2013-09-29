@@ -68,7 +68,7 @@ public final class Board extends Sprite
      * @param rows The row board size. NOTE: This is not the number of pegs
      * @param container The container the board will be drawn within
      */
-    public Board(final int size, final int difficultyIndex, final Random random)
+    public Board(final int size, final Difficulty difficulty, final Random random)
     {
         //the number of column/row cells in this Board
         this.size = size;
@@ -90,7 +90,7 @@ public final class Board extends Sprite
         this.pegs = new ArrayList<>();
         
         //get the fill rate based on the difficulty
-        final float fillRate = Difficulty.values()[difficultyIndex].getFillRate();
+        final float fillRate = difficulty.getFillRate();
         
         //create a list of possible solutions
         List<Float> solutions = new ArrayList<>();
@@ -214,8 +214,11 @@ public final class Board extends Sprite
                 //the current value
                 final int countSelection = getSelectionCount(col, row);
                 
+                //are all 4 pegs in the cell solved
+                final boolean solved = (countSolution == countSelection);
+                
                 //the appropriate Image to draw
-                final Image img = engine.getResources().getGameImage(getNumberKey(countSelection, countSolution));
+                final Image img = engine.getResources().getGameImage(getNumberKey(solved, countSolution));
 
                 //location
                 final int x = start.x + (col * cellDimension);
@@ -233,13 +236,17 @@ public final class Board extends Sprite
         }
     }
     
+    /**
+     * Check if the entire board has been solved
+     * @return true if solved, false otherwise
+     */
     public boolean hasSolved()
     {
         for (int col=0; col < getSize(); col++)
         {
             for (int row=0; row < getSize(); row++)
             {
-                if (!isSolved(col, row))
+                if (!hasSolvedCell(col, row))
                     return false;
             }
         }
@@ -247,26 +254,15 @@ public final class Board extends Sprite
         return true;
     }
 
-    public boolean isSolved(final Cell cell)
-    {
-        return isSolved(cell.getCol(), cell.getRow());
-    }
-    
     /**
-     * This method just checks to make sure the selection count equals the solution count for the specific Cell.
-     * @param col
-     * @param row
-     * @return True if the solution count matches the selection count
+     * This method checks if the 4 pegs in the cell are correct
+     * @param col Column
+     * @param row Row
+     * @return true if the solution count matches the selection count, false otherwise
      */
-    public boolean isSolved(final int col, final int row)
+    public boolean hasSolvedCell(final int col, final int row)
     {
-        //the real solution
-        final int countSolution = getSolutionCount(col, row);
-
-        //the current value
-        final int countSelection = getSelectionCount(col, row);
-        
-        return (countSolution == countSelection);
+        return (getSolutionCount(col, row) == getSelectionCount(col, row));
     }
     
     /**
@@ -276,108 +272,108 @@ public final class Board extends Sprite
      * @return GameImage key, the key that represents the Image
      * @throws Exception 
      */
-    private GameImage getNumberKey(final int number, final int solution) throws Exception
+    private GameImage getNumberKey(final boolean solved, final int solution) throws Exception
     {
         switch(solution)
         {
             case 0:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS0;
                 else
                     return GameImage.NE0;
 
             case 1:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS1;
                 else
                     return GameImage.NE1;
 
             case 2:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS2;
                 else
                     return GameImage.NE2;
 
             case 3:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS3;
                 else
                     return GameImage.NE3;
 
             case 4:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS4;
                 else
                     return GameImage.NE4;
 
             case 5:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS5;
                 else
                     return GameImage.NE5;
 
             case 6:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS6;
                 else
                     return GameImage.NE6;
 
             case 7:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS7;
                 else
                     return GameImage.NE7;
 
             case 8:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS8;
                 else
                     return GameImage.NE8;
 
             case 9:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS9;
                 else
                     return GameImage.NE9;
 
             case 10:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS10;
                 else
                     return GameImage.NE10;
 
             case 11:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS11;
                 else
                     return GameImage.NE11;
 
             case 12:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS12;
                 else
                     return GameImage.NE12;
 
             case 13:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS13;
                 else
                     return GameImage.NE13;
 
             case 14:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS14;
                 else
                     return GameImage.NE14;
 
             case 15:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS15;
                 else
                     return GameImage.NE15;
 
             case 16:
-                if (number == solution)
+                if (solved)
                     return GameImage.NS16;
                 else
                     return GameImage.NE16;
@@ -387,12 +383,12 @@ public final class Board extends Sprite
     }
     
     /**
-     * Get the current count for the given column, row
+     * Get the current count of all 4 pegs for the given column, row
      * @param col Column
      * @param row Row
      * @return int, The current count
      */
-    public int getSelectionCount(final int col, final int row)
+    private int getSelectionCount(final int col, final int row)
     {
         //get the selection count for all neighbors
         int count = 0;
@@ -425,12 +421,12 @@ public final class Board extends Sprite
     }
     
     /**
-     * Get the solution count for the given column, row
+     * Get the solution count of all 4 pegs for the given column, row
      * @param col Column
      * @param row Row
      * @return int, The solution
      */
-    public int getSolutionCount(final int col, final int row)
+    private int getSolutionCount(final int col, final int row)
     {
         //get the solution count for all neighbors
         int count = 0;

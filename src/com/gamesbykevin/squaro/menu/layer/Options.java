@@ -31,6 +31,11 @@ public class Options extends Layer implements LayerRules
         //setup options here
         Option tmp;
             
+        tmp = new Option("Mode: ");
+        tmp.add("1 Player", engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
+        tmp.add("Vs.", engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
+        super.add(OptionKey.Mode, tmp);
+        
         tmp = new Option("Dimensions: ");
         for (int size=3; size <= 9; size++)
         {
@@ -38,19 +43,34 @@ public class Options extends Layer implements LayerRules
         }
         super.add(OptionKey.Dimensions, tmp);
         
-        tmp = new Option("Difficulty: ");
+        tmp = new Option("Dimensions: ");
+        for (int size=3; size <= 9; size++)
+        {
+            tmp.add(Integer.toString(size), engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
+        }
+        super.add(OptionKey.Dimensions, tmp);
+        
+        tmp = new Option("Board Difficulty: ");
         for (Difficulty difficulty : Difficulty.values())
         {
             tmp.add(difficulty.toString(), engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
         }
-        super.add(OptionKey.Difficulty, tmp);
+        super.add(OptionKey.BoardDifficulty, tmp);
+        
+        tmp = new Option("Cpu Difficulty: ");
+        for (Difficulty difficulty : Difficulty.values())
+        {
+            tmp.add(difficulty.toString(), engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
+        }
+        super.add(OptionKey.CpuDifficulty, tmp);
+        
         
         tmp = new Option("Sound: ");
         for (Toggle toggle : Toggle.values())
         {
             tmp.add(toggle.toString(), engine.getResources().getMenuAudio(Resources.MenuAudio.OptionChange));
         }
-        super.add(OptionKey.Sound, tmp);
+        //super.add(OptionKey.Sound, tmp);
         
         tmp = new Option("FullScreen: ");
         for (Toggle toggle : Toggle.values())

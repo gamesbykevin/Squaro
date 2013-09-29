@@ -5,7 +5,7 @@ import com.gamesbykevin.squaro.engine.Engine;
 public interface LayerRules 
 {
     //default ratio for all the option containers
-    public static final float RATIO = .60F;
+    public static final float RATIO = .80F;
     
     /**
      * Setup Layer options (if they exist)

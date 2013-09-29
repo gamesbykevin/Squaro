@@ -10,11 +10,31 @@ import java.awt.Rectangle;
  * The human class will check for mouse input
  * @author GOD
  */
-public final class Human extends Player
+public final class Human extends Player implements IPlayer
 {
+    public Human()
+    {
+        super(true);
+    }
+    
     @Override
     public void update(final Engine engine) throws Exception
     {
+        //if the puzzle is solved no need to continue
+        if (hasSolved())
+            return;
+        
+        //update board render image
+        super.update(engine);
+        
+        //if the board was solved
+        if (getBoard().hasSolved())
+        {
+            super.setSolved();
+            return;
+        }
+        
+        //was the mouse pressed
         final boolean hasMousePress = (engine.getMouse().isMousePressed());
         
         //if the mouse was pressed check for collision
@@ -29,9 +49,6 @@ public final class Human extends Player
             
             for (Peg peg : getBoard().getPegs())
             {
-                //get the rectangle because we need to offset the coordinates for the mouse location
-                Rectangle tmp = peg.getRectangle();
-                
                 //if the peg we clicked is contained inside a Rectangle
                 if (peg.getRectangle().contains(location))
                 {
@@ -46,8 +63,5 @@ public final class Human extends Player
             //reset the mouse events
             engine.getMouse().reset();
         }
-        
-        //update board render image
-        super.update(engine);
     }
 }

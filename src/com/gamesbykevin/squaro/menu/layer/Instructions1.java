@@ -12,7 +12,7 @@ public class Instructions1 extends Layer implements LayerRules
         super(Layer.Type.NONE, engine.getMain().getScreen());
         
         setImage(engine.getResources().getMenuImage(Resources.MenuImage.Instructions1));
-        setNextLayer(CustomMenu.LayerKey.Instructions2);
+        setNextLayer(CustomMenu.LayerKey.MainTitle);
         setForce(false);
         setPause(true);
         setTimer(null);

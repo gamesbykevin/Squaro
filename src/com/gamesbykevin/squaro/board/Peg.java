@@ -49,24 +49,6 @@ public class Peg extends Sprite
         this.solutionCount = count;
     }
     
-    public void setFill(final float fill)
-    {
-        //continue to change the fill until the correct is found
-        while (this.fill != fill)
-        {
-            changeFill();
-        }
-    }
-    
-    public void setFill(final int count)
-    {
-        //continue to change the count until the correct is found
-        while (this.currentCount != count)
-        {
-            changeFill();
-        }
-    }
-    
     /**
      * Move to the next index in the Status collection
      */
@@ -102,6 +84,27 @@ public class Peg extends Sprite
     public int getCurrentCount()
     {
         return this.currentCount;
+    }
+    
+    /**
+     * Has this peg been solved
+     * @return true or false
+     */
+    public boolean hasSolved()
+    {
+        return (this.currentCount == this.solutionCount);
+    }
+    
+    /**
+     * Mark the Peg as solved
+     */
+    public void setSolved()
+    {
+        while(!hasSolved())
+        {
+            //keep changing the fill until it has been solved
+            changeFill();
+        }
     }
     
     /**

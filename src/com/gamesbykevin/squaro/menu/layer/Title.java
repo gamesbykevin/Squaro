@@ -20,7 +20,7 @@ public class Title extends Layer implements LayerRules
         super.setImage(engine.getResources().getMenuImage(MenuImage.TitleScreen));
 
         //we will not force this layer to show
-        setForce(false);
+        setForce(true);
         
         //we do not want to pause this layer once it completes
         setPause(false);

@@ -45,7 +45,7 @@ public class Resources implements IResources
     {
         TitleScreen, Credits, AppletFocus, TitleBackground, Mouse, MouseDrag, 
         Controls1,  
-        Instructions1, Instructions2, Instructions3, Instructions4
+        Instructions1, 
     }
     
     public enum Fonts

@@ -14,7 +14,7 @@ public class Credits extends Layer implements LayerRules
         super(Layer.Type.SCROLL_VERTICAL_NORTH, engine.getMain().getScreen());
         
         setImage(engine.getResources().getMenuImage(Resources.MenuImage.Credits));
-        setForce(false);
+        setForce(true);
         setPause(false);
         setNextLayer(CustomMenu.LayerKey.MainTitle);
         setTimer(new Timer(TimerCollection.toNanoSeconds(7500L)));

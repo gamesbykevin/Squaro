@@ -5,6 +5,7 @@ import com.gamesbykevin.framework.util.Timer;
 import com.gamesbykevin.framework.util.TimerCollection;
 
 import com.gamesbykevin.squaro.board.Board;
+import com.gamesbykevin.squaro.board.Board.Difficulty;
 import com.gamesbykevin.squaro.engine.Engine;
 import java.awt.Color;
 
@@ -16,7 +17,7 @@ import java.util.Random;
  * This will contain all of the player objects
  * @author GOD
  */
-public abstract class Player extends Sprite
+public abstract class Player extends Sprite implements IPlayer
 {
     //the game board
     private Board board;
@@ -24,8 +25,8 @@ public abstract class Player extends Sprite
     //the game timer
     private Timer timer;
     
-    //where to draw the location
-    private Point location;
+    //where to draw the location and status
+    private Point location, status;
     
     //seed used for random number generation
     private final long seed = System.nanoTime();
@@ -33,12 +34,38 @@ public abstract class Player extends Sprite
     //our random numbner generator
     private Random random;
     
-    public Player()
+    //has the entire board been solved
+    private boolean solved = false;
+    
+    //is the player human
+    private final boolean human;
+    
+    public Player(final boolean human)
     {
+        //is this player human
+        this.human = human;
+        
         //create a random number generator
         this.random = new Random(seed);
-        
-        System.out.println("The seed = \"" + seed + "\"");
+    }
+    
+    /**
+     * Has the board been solved
+     * @return true if solved, false otherwise
+     */
+    public boolean hasSolved()
+    {
+        return this.solved;
+    }
+    
+    protected void setSolved()
+    {
+        this.solved = true;
+    }
+    
+    private void resetSolved()
+    {
+        this.solved = false;
     }
     
     protected Random getRandom()
@@ -46,13 +73,13 @@ public abstract class Player extends Sprite
         return this.random;
     }
     
+    @Override
     public void update(final Engine engine) throws Exception
     {
         if (this.timer == null)
         {
             //create new timer and location
             this.timer = new Timer();
-            this.location = new Point((int)getX() + 50, (int)getY() + 50);
         }
         
         timer.update(engine.getMain().getTime());
@@ -60,9 +87,25 @@ public abstract class Player extends Sprite
         getBoard().update(engine);
     }
     
-    public void createBoard(final int boardDimension, final int difficultyIndex)
+    public void createBoard(final int boardDimension, final Difficulty difficulty)
     {
-        board = new Board(boardDimension, difficultyIndex, random);
+        //the player does not have the board solved
+        resetSolved();
+        
+        //reset the timer
+        if (timer != null)
+            timer.reset();
+        
+        if (board != null)
+        {
+            board = new Board(boardDimension, difficulty, random);
+            
+            this.setLocation((int)getX(), (int)getY());
+        }
+        else
+        {
+            board = new Board(boardDimension, difficulty, random);
+        }
     }
     
     public Board getBoard()
@@ -79,14 +122,41 @@ public abstract class Player extends Sprite
         getBoard().setLocation(x, y + 75);
     }
     
+    @Override
     public void render(final Graphics graphics)
     {
+        //font size is 18
+        graphics.setFont(graphics.getFont().deriveFont(18f));
+        
+        //draw board
         getBoard().render(graphics);
         
-        if (timer != null && location != null)
+        if (timer != null)
         {
+            if (location == null)
+            {
+                final int width = (int)(graphics.getFontMetrics().stringWidth(TimerCollection.FORMAT_6) * 1.25);
+                
+                location = new Point();
+                location.x = (int)(getX());
+                location.y = (int)(getY() + 60);
+                
+                status = new Point();
+                status.x = location.x + width + 5;
+                status.y = location.y;
+            }
+            
             graphics.setColor(Color.WHITE);
             graphics.drawString(timer.getDescPassed(TimerCollection.FORMAT_6), location.x, location.y);
+            
+            if (human)
+            {
+                graphics.drawString("Human", status.x, status.y);
+            }
+            else
+            {
+                graphics.drawString("Cpu", status.x, status.y);
+            }
         }
     }
 }
