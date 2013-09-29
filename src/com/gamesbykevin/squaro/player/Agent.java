@@ -26,6 +26,7 @@ public final class Agent extends Player
     {
         //run ai puzzle solving logic here
         
+        //first run solve random location to get the ball rolling
         if (firstRun)
         {
             //pick random location
