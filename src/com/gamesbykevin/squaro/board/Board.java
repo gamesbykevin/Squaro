@@ -2,6 +2,7 @@ package com.gamesbykevin.squaro.board;
 
 import com.gamesbykevin.framework.base.Cell;
 import com.gamesbykevin.framework.base.Sprite;
+import com.gamesbykevin.framework.resources.Disposable;
 
 import com.gamesbykevin.squaro.engine.Engine;
 import com.gamesbykevin.squaro.resource.Resources.GameImage;
@@ -18,7 +19,7 @@ import java.util.Random;
  * This is the board where game play will occur
  * @author GOD
  */
-public final class Board extends Sprite
+public final class Board extends Sprite implements Disposable
 {
     //we will write the board to a buffered image
     private BufferedImage bufferedImage;
@@ -141,6 +142,22 @@ public final class Board extends Sprite
                 pegs.add(peg);
             }
         }
+    }
+    
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+        
+        if (bufferedImage != null)
+            bufferedImage.flush();
+        
+        bufferedImage = null;
+        
+        if (pegs != null)
+            pegs.clear();
+        
+        pegs = null;
     }
     
     /**

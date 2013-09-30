@@ -178,7 +178,17 @@ public final class Manager implements Disposable
     @Override
     public void dispose()
     {
+        this.timer = null;
         
+        if (human != null)
+            human.dispose();
+        
+        human = null;
+        
+        if (agent != null)
+            agent.dispose();
+        
+        agent = null;
     }
     
     /**

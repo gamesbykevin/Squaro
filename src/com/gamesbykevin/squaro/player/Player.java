@@ -1,6 +1,7 @@
 package com.gamesbykevin.squaro.player;
 
 import com.gamesbykevin.framework.base.Sprite;
+import com.gamesbykevin.framework.resources.Disposable;
 import com.gamesbykevin.framework.util.Timer;
 import com.gamesbykevin.framework.util.TimerCollection;
 
@@ -17,7 +18,7 @@ import java.util.Random;
  * This will contain all of the player objects
  * @author GOD
  */
-public abstract class Player extends Sprite implements IPlayer
+public abstract class Player extends Sprite implements IPlayer, Disposable
 {
     //the game board
     private Board board;
@@ -47,6 +48,25 @@ public abstract class Player extends Sprite implements IPlayer
         
         //create a random number generator
         this.random = new Random(seed);
+    }
+    
+    @Override
+    public void dispose()
+    {
+        super.dispose();
+        
+        if (board != null)
+            board.dispose();
+        
+        board = null;
+        
+        timer = null;
+        
+        location = null;
+        
+        status = null;
+        
+        random = null;
     }
     
     /**
